@@ -95,9 +95,18 @@ const onFilterUpdate = async () => {
  * @returns 
  */
 const createCard = (data) => {
+    const card = document.createElement("ARTICLE");
+    const imageContainer = document.createElement("DIV");
     const image = document.createElement("IMG");
+    const name = document.createElement("H3");
+    const favoriteButton = document.createElement("BUTTON");
+    card.classList.add("card");
     image.src = data.image;
-    return image;
+    name.innerText = data.name;
+    favoriteButton.innerText = "add favorite";
+    imageContainer.append(image);
+    card.append(imageContainer, name, favoriteButton);
+    return card;
 }
 
 
