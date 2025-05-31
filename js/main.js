@@ -7,11 +7,16 @@ const speciesFilter = document.querySelector("#speciesFilter");
 const typeFilter = document.querySelector("#typeFilter");
 const genderFilter = document.querySelector("#genderFilter");
 
+const prevButton = document.querySelector("#prevButton");
+const nextButton = document.querySelector("#nextButton");
+
 const fragment = document.createDocumentFragment();
 
 const URL_BASE = "https://rickandmortyapi.com/api/";
 
-
+let next = "";
+let prev = ""
+let pages = 0;
 
 
 
@@ -19,6 +24,21 @@ const URL_BASE = "https://rickandmortyapi.com/api/";
 document.addEventListener("click", (ev) => {
     if (ev.target.matches("#nameFilterButton")) {
         onFilterUpdate();
+    }
+    if (ev.target.matches("#firstButton") && prev) {
+        const first = prev.replace(/(page=)(\d+)/, `$1${0}`);
+        onPageChange(first)
+    }
+    if (ev.target.matches("#prevButton") && prev) {
+        onPageChange(prev)
+    }
+    if (ev.target.matches("#nextButton") && next) {
+        onPageChange(next)
+    }
+    if (ev.target.matches("#lastButton") && next) {
+        const last = prev.replace(/(page=)(\d+)/, `$1${pages}`);
+        console.log(last)
+        onPageChange(last)
     }
 })
 
@@ -33,10 +53,11 @@ document.addEventListener("click", (ev) => {
  */
 const apiCall = async (url) => {
     try {
-        const response = await fetch(`${URL_BASE}${url}`);
+        const response = await fetch(`${url}`);
         if (response) {
             const data = await response.json();
             if (data) {
+                console.log(data)
                 return data;
             } else {
                 throw "Something go wrong gettin the data";
@@ -67,10 +88,12 @@ const characterFilterApiCall = async (name, status, species, type, gender) => {
     if (type) queryParts.push(`type=${type}`);
     if (gender) queryParts.push(`gender=${gender}`);
     const url = `character?${queryParts.join("&")}`;
-    return await apiCall(url);
+    return await apiCall(URL_BASE + url);
 }
 
-
+/**
+ * 
+ */
 const onFilterUpdate = async () => {
     console.log("onfilterupdate")
     const name = nameFilter.value;
@@ -80,13 +103,26 @@ const onFilterUpdate = async () => {
     const gender = genderFilter.value;
     try {
         const data = await characterFilterApiCall(name, status, species, type, gender);
-        console.log(data)
         drawCardContainer(data);
+        next = data.info.next;
+        prev = data.info.prev;
+        pages = data.info.pages;
     } catch (err) {
         cardsContainer.innerHTML = `<p>Erro: ${err}</p>`;
     }
 }
 
+/**
+ * 
+ * @param {*} url 
+ */
+const onPageChange = async (url) => {
+    const data = await apiCall(url);
+    next = data.info.next;
+    prev = data.info.prev;
+    pages = data.info.pages;
+    drawCardContainer(data);
+}
 
 
 /**
