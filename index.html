@@ -8,6 +8,27 @@
 </head>
 
 <body>
+    <header>
+        <section id="characterFilters">
+            <input type="text" id="nameFilter" placeholder="name">
+            <button id="nameFilterButton">Search</button>
+            <select id=statusFilter>
+                <option value="" selected>All</option>
+                <option value="alive">Alive</option>
+                <option value="dead">Dead</option>
+                <option value="unknown">Unknown</option>
+            </select>
+            <input type="text" id="speciesFilter" placeholder="species">
+            <input type="text" id="typeFilter" placeholder="type">
+            <select id=genderFilter>
+                <option value="" selected>All</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="genderless">Genderless</option>
+                <option value="unknown">Unknown</option>
+            </select>
+        </section>
+    </header>
     <section id="cardsContainer">
 
     </section>
