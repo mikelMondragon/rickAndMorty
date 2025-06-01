@@ -7,9 +7,6 @@ const speciesFilter = document.querySelector("#speciesFilter");
 const typeFilter = document.querySelector("#typeFilter");
 const genderFilter = document.querySelector("#genderFilter");
 
-const prevButton = document.querySelector("#prevButton");
-const nextButton = document.querySelector("#nextButton");
-
 const fragment = document.createDocumentFragment();
 
 const URL_BASE = "https://rickandmortyapi.com/api/";
@@ -22,9 +19,11 @@ let pages = 0;
 
 
 document.addEventListener("click", (ev) => {
+    //Filters.
     if (ev.target.matches("#nameFilterButton")) {
         onFilterUpdate();
     }
+    //Pagination.
     if (ev.target.matches("#firstButton") && prev) {
         const first = prev.replace(/(page=)(\d+)/, `$1${0}`);
         onPageChange(first)
@@ -37,14 +36,34 @@ document.addEventListener("click", (ev) => {
     }
     if (ev.target.matches("#lastButton") && next) {
         const last = prev.replace(/(page=)(\d+)/, `$1${pages}`);
-        console.log(last)
         onPageChange(last)
+    }
+    //Favotires.
+    if (ev.target.matches(".favoriteButton")) {
+        const characterId = String(ev.target.parentNode.dataset.characterId);
+        let savedCharacters = getElementFromLocalStorage("favoriteCharacters");
+        if (!savedCharacters.includes(characterId)) {
+            savedCharacters.push(characterId);
+            ev.target.innerText = "delete favorite"
+        } else {
+            savedCharacters = savedCharacters.filter(element => element != characterId);
+            ev.target.innerText = "add favorite"
+        }
+        setElementFromLocalStorage("favoriteCharacters", savedCharacters)
+    }
+    if (ev.target.matches("#showFavorites")) {
+        showFavorites();
     }
 })
 
 
+const getElementFromLocalStorage = (name) => {
+    return JSON.parse(localStorage.getItem(name)) || [];
+}
 
-
+const setElementFromLocalStorage = (name, data) => {
+    localStorage.setItem(name, JSON.stringify(data))
+}
 
 /**
  * 
@@ -57,7 +76,6 @@ const apiCall = async (url) => {
         if (response) {
             const data = await response.json();
             if (data) {
-                console.log(data)
                 return data;
             } else {
                 throw "Something go wrong gettin the data";
@@ -91,11 +109,22 @@ const characterFilterApiCall = async (name, status, species, type, gender) => {
     return await apiCall(URL_BASE + url);
 }
 
+const characterIdApiCall = async (...ids) => {
+    const url = `character/${ids.join(",")}`;
+    return await apiCall(URL_BASE + url);
+}
+
+
+const showFavorites = async () => {
+    const ids = getElementFromLocalStorage("favoriteCharacters");
+    const data = await characterIdApiCall(ids);
+    drawCardContainer(data);
+}
+
 /**
  * 
  */
 const onFilterUpdate = async () => {
-    console.log("onfilterupdate")
     const name = nameFilter.value;
     const status = statusFilter.value;
     const species = speciesFilter.value;
@@ -103,7 +132,7 @@ const onFilterUpdate = async () => {
     const gender = genderFilter.value;
     try {
         const data = await characterFilterApiCall(name, status, species, type, gender);
-        drawCardContainer(data);
+        drawCardContainer(data.results);
         next = data.info.next;
         prev = data.info.prev;
         pages = data.info.pages;
@@ -121,7 +150,7 @@ const onPageChange = async (url) => {
     next = data.info.next;
     prev = data.info.prev;
     pages = data.info.pages;
-    drawCardContainer(data);
+    drawCardContainer(data.results);
 }
 
 
@@ -137,9 +166,12 @@ const createCard = (data) => {
     const name = document.createElement("H3");
     const favoriteButton = document.createElement("BUTTON");
     card.classList.add("card");
+    card.dataset.characterId = data.id;
     image.src = data.image;
+    image.alt = data.name;
     name.innerText = data.name;
-    favoriteButton.innerText = "add favorite";
+    favoriteButton.innerText = !getElementFromLocalStorage("favoriteCharacters").includes(String(data.id)) ? "add favorite" : "delete favorite";
+    favoriteButton.classList.add("favoriteButton");
     imageContainer.append(image);
     card.append(imageContainer, name, favoriteButton);
     return card;
@@ -149,7 +181,7 @@ const createCard = (data) => {
 /**
  * 
  */
-const drawCardContainer = ({ results = [] }) => {
+const drawCardContainer = (results) => {
     cardsContainer.innerHTML = "";
     results.forEach(element => {
         const newCard = createCard(element);
