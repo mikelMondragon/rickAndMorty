@@ -1,5 +1,10 @@
 //DOM elements
+const characterFilters = document.querySelector("#characterFilters");
+const locationsFilters = document.querySelector("#locationsFilters");
+const episodesFilters = document.querySelector("#episodesFilters");
+
 const cardsContainer = document.querySelector("#cardsContainer");
+
 const nameFilter = document.querySelector("#nameFilter");
 const nameFilterButton = document.querySelector("#nameFilterButton");
 const statusFilter = document.querySelector("#statusFilter");
@@ -12,13 +17,21 @@ const fragment = document.createDocumentFragment();
 const URL_BASE = "https://rickandmortyapi.com/api/";
 
 let next = "";
-let prev = ""
+let prev = "";
 let pages = 0;
 
 
 
 
 document.addEventListener("click", (ev) => {
+
+    //Sections.
+    if (ev.target.matches(".sectionButton")) {
+        const type = ev.target.dataset.filterType;
+        handleFilterSectionVisibility(type);
+    }
+
+
     //Filters.
     if (ev.target.matches("#nameFilterButton")) {
         onFilterUpdate();
@@ -108,13 +121,36 @@ const characterFilterApiCall = async (name, status, species, type, gender) => {
     const url = `character?${queryParts.join("&")}`;
     return await apiCall(URL_BASE + url);
 }
-
+/**
+ * 
+ * @param  {...any} ids 
+ * @returns 
+ */
 const characterIdApiCall = async (...ids) => {
     const url = `character/${ids.join(",")}`;
     return await apiCall(URL_BASE + url);
 }
 
 
+const handleFilterSectionVisibility = (type) => {
+    const filterSections = document.querySelectorAll(".filterSection");
+
+    filterSections.forEach(element => {
+        if (element.dataset.filterType == type) {
+            element.classList.remove("hidden");
+            element.classList.add("visible");
+        } else {
+            element.classList.remove("visible");
+            element.classList.add("hidden");
+        }
+    })
+}
+
+
+
+/**
+ * 
+ */
 const showFavorites = async () => {
     const ids = getElementFromLocalStorage("favoriteCharacters");
     const data = await characterIdApiCall(ids);

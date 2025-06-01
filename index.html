@@ -10,7 +10,12 @@
 
 <body>
     <header>
-        <section id="characterFilters">
+        <nav>
+            <button class="sectionButton" data-filter-type="characters">Charactes</button>
+            <button class="sectionButton" data-filter-type="locations">Locations</button>
+            <button class="sectionButton" data-filter-type="episodes">Episodes</button>
+        </nav>
+        <section class="filterSection" data-filter-type="characters">
             <input type="text" id="nameFilter" placeholder="name">
             <button id="nameFilterButton">Search</button>
             <select id=statusFilter>
@@ -29,6 +34,11 @@
                 <option value="unknown">Unknown</option>
             </select>
             <button id="showFavorites">show favorites</button>
+        </section>
+
+        <section class="filterSection" data-filter-type="locations">
+        </section>
+        <section class="filterSection" data-filter-type="episodes">
         </section>
     </header>
     <section id="cardsContainer">
