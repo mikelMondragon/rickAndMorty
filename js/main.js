@@ -6,16 +6,22 @@ const episodesFilters = document.querySelector("#episodesFilters");
 const cardsContainer = document.querySelector("#cardsContainer");
 
 const nameFilter = document.querySelector("#nameFilter");
-const nameFilterButton = document.querySelector("#nameFilterButton");
 const statusFilter = document.querySelector("#statusFilter");
 const speciesFilter = document.querySelector("#speciesFilter");
 const typeFilter = document.querySelector("#typeFilter");
 const genderFilter = document.querySelector("#genderFilter");
 
+const nameLocationFilter = document.querySelector("#nameLocationFilter");
+const typeLocationFilter = document.querySelector("#typeLocationFilter");
+const dimensionLocationFilter = document.querySelector("#dimensionLocationFilter");
+
 const fragment = document.createDocumentFragment();
 
 const URL_BASE = "https://rickandmortyapi.com/api/";
 
+let currentSection = "";
+
+//Pagination
 let next = "";
 let prev = "";
 let pages = 0;
@@ -31,9 +37,8 @@ document.addEventListener("click", (ev) => {
         handleFilterSectionVisibility(type);
     }
 
-
     //Filters.
-    if (ev.target.matches("#nameFilterButton")) {
+    if (ev.target.matches(".searchButton")) {
         onFilterUpdate();
     }
     //Pagination.
@@ -121,6 +126,18 @@ const characterFilterApiCall = async (name, status, species, type, gender) => {
     const url = `character?${queryParts.join("&")}`;
     return await apiCall(URL_BASE + url);
 }
+
+
+const locationFilerApiCall = async (name, type, dimension) => {
+    const queryParts = [];
+    if (name) queryParts.push(`name=${name}`);
+    if (type) queryParts.push(`type=${type}`);
+    if (dimension) queryParts.push(`dimension=${dimension}`);
+    const url = `location?${queryParts.join("&")}`;
+    console.log(URL_BASE + url)
+    return await apiCall(URL_BASE + url);
+}
+
 /**
  * 
  * @param  {...any} ids 
@@ -133,8 +150,8 @@ const characterIdApiCall = async (...ids) => {
 
 
 const handleFilterSectionVisibility = (type) => {
+    currentSection = type;
     const filterSections = document.querySelectorAll(".filterSection");
-
     filterSections.forEach(element => {
         if (element.dataset.filterType == type) {
             element.classList.remove("hidden");
@@ -160,7 +177,36 @@ const showFavorites = async () => {
 /**
  * 
  */
-const onFilterUpdate = async () => {
+const onFilterUpdate = () => {
+    switch (currentSection) {
+        case "characters": updateCardsWithCharacter(); break;
+        case "locations": updateCardsWithLocation(); break;
+    }
+
+
+
+}
+
+
+const updateCardsWithLocation = async () => {
+    const name = nameLocationFilter.value;
+    const type = typeLocationFilter.value;
+    const dimension = dimensionLocationFilter.value;
+    try {
+        const data = await locationFilerApiCall(name, type, dimension);
+        drawCardContainer(data.results);
+        next = data.info.next;
+        prev = data.info.prev;
+        pages = data.info.pages;
+    }
+    catch (err) {
+        cardsContainer.innerHTML = `<p>Erro: ${err}</p>`;
+    }
+}
+
+
+
+const updateCardsWithCharacter = async () => {
     const name = nameFilter.value;
     const status = statusFilter.value;
     const species = speciesFilter.value;
@@ -227,5 +273,6 @@ const drawCardContainer = (results) => {
 }
 
 
-
+handleFilterSectionVisibility("characters")
 onFilterUpdate();
+

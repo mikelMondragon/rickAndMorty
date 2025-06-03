@@ -17,7 +17,7 @@
         </nav>
         <section class="filterSection" data-filter-type="characters">
             <input type="text" id="nameFilter" placeholder="name">
-            <button id="nameFilterButton">Search</button>
+            <button class="searchButton">Search</button>
             <select id=statusFilter>
                 <option value="" selected>All</option>
                 <option value="alive">Alive</option>
@@ -37,6 +37,11 @@
         </section>
 
         <section class="filterSection" data-filter-type="locations">
+            <input type="text" id="nameLocationFilter" placeholder="name">
+            <input type="text" id="typeLocationFilter" placeholder="type">
+            <input type="text" id="dimensionLocationFilter" placeholder="dimension">
+            <button class="searchButton">Search</button>
+            <button id="showFavorites">show favorites</button>
         </section>
         <section class="filterSection" data-filter-type="episodes">
         </section>
